@@ -8,4 +8,6 @@ if (PLATFORM EQUAL 64)
   add_definitions("-D_WIN64")
 endif()
 
+set(AETHINA_COMPILER_MSVC ON CACHE INTERNAL "Aethina compiler")
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
