@@ -16,14 +16,70 @@
 
 #include "aethina_core.hpp"
 
-#include "aethina_config.hpp"
-
-#include <boost/type_index.hpp>
-
 #include <typeinfo>
+#include <unordered_map>
+#include <unordered_set>
+
+#include "aethina_config.hpp"
 
 namespace aethina
 {
+    /**
+     * Map which stores all bundles
+     */
+    std::unordered_multimap<std::size_t /*bundle hash_code*/, Bundle* /*bundle*/> bundles;
+
+    /**
+     * Map which stores the subscriber of a specific bundle.
+     */
+    std::unordered_multimap<std::size_t /*bundle hash_code*/, BundleSubscriber* /*subscriber*/> subscriber;
+
+    /**
+     * Set which stores the default bundle listeners.
+     */
+    std::unordered_set<BundleListener* /*listener*/> listener;
+
+    BundleGuard::BundleGuard(BundleGuard&& guard)
+    {
+        counter_ = guard.counter_;
+        guard.counter_ = nullptr;
+    }
+
+    BundleGuard::BundleGuard(BundleGuard const& guard)
+    {
+        ++(*guard.counter_);
+        counter_ = guard.counter_;
+    }
+
+    BundleGuard::~BundleGuard()
+    {
+        if (--counter_)
+        {
+            // ToDo
+            delete counter_;
+        }
+    }
+
+    BundleGuard& BundleGuard::operator=(BundleGuard const& guard)
+    {
+        if (&guard != this)
+        {
+            ++(*guard.counter_);
+            counter_ = guard.counter_;
+        }
+        return *this;
+    }
+
+    BundleGuard& BundleGuard::operator=(BundleGuard&& guard)
+    {
+        if (&guard != this)
+        {
+            counter_ = guard.counter_;
+            guard.counter_ = nullptr;
+        }
+        return *this;
+    }
+
     AETHINA_CORE_API bool RegisterBundle(Bundle const* bundle)
     {
         auto name = typeid(*bundle).name();
@@ -41,6 +97,16 @@ namespace aethina
     }
 
     AETHINA_CORE_API bool RemoveBundleListener(BundleListener* bundle)
+    {
+        return true;
+    }
+
+    AETHINA_CORE_API bool AddBundleListener(BundleSubscriber* bundle)
+    {
+        return true;
+    }
+
+    AETHINA_CORE_API bool RemoveBundleListener(BundleSubscriber* bundle)
     {
         return true;
     }
