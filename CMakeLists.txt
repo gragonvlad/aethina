@@ -12,4 +12,6 @@ include(CheckIncludeFiles)
 include(cmake/configure_platform.cmake)
 include(cmake/configure_compiler.cmake)
 
-add_executable(Dummy src/dummy.cpp)
+include(dep/configure_dependencies.cmake)
+
+add_subdirectory(src)
